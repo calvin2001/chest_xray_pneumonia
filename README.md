@@ -42,19 +42,19 @@ Held-out test set (624 images: 234 normal + 390 pneumonia), 3 epochs each, same 
 
 | Model | Recall | Precision | F1 | Missed pneumonia (FN) | False alarms (FP) |
 |---|---|---|---|---|---|
-| Small CNN (from scratch)               | 0.99 | 0.69 | 0.82 | 3 | 172 |
-| ResNet18 — feature extraction (freeze) | 0.98 | 0.85 | **0.91** | 8 | 65 |
-| ResNet18 — fine-tuning                 | **1.00** | 0.75 | 0.86 | 1 | 128 |
+| Small CNN (from scratch)               | 0.98 | 0.73 | 0.84 | 6 | 145 |
+| ResNet18 — feature extraction (freeze) | 0.97 | 0.87 | **0.92** | 10 | 56 |
+| ResNet18 — fine-tuning                 | 0.99 | 0.81 | 0.89 | 2 | 90 |
 
-After refining with a proper stratified validation set, dropout, and early stopping (see the notebook's Section 5), the from-scratch CNN's precision rises to ~0.72 (F1 ~0.83) and the fine-tuned model settles at recall ~1.00 / precision ~0.76 / F1 ~0.86.
+After refining with a proper stratified validation set, dropout, and early stopping (see the notebook's Section 5), the from-scratch CNN settles at recall ~0.99 / precision ~0.71 / F1 ~0.83, and the fine-tuned model reaches **recall ~1.00 (0.997) / precision ~0.81 / F1 ~0.89 — missing only 1 of 390 pneumonia cases.**
 
-*Numbers are from Colab (Tesla T4) runs; augmentation and dropout are stochastic, so re-runs vary slightly.*
+*Numbers are from a Colab (Tesla T4) run; augmentation and dropout are stochastic, so re-runs vary slightly.*
 
 ## What the results say
 
 - **Transfer learning is the workhorse.** With only ~5k images, borrowing ImageNet features beats training from scratch on precision and F1, at a fraction of the effort.
-- **Every model reaches very high recall (~0.98–1.00).** The fine-tuned network misses essentially no pneumonia (1 of 390); its lower precision — more false alarms — is the acceptable trade-off in a medical setting.
-- **Freeze vs. fine-tune is a genuine choice, not a formality.** The frozen feature extractor gives the best overall balance (F1 ≈ 0.91), while fine-tuning maximises recall. Which to ship depends on whether the clinical goal is "miss nothing" or "balanced triage".
+- **Every model reaches very high recall (~0.97–1.00).** The fine-tuned network misses only 1 of 390 pneumonia cases; its lower precision — more false alarms — is the acceptable trade-off in a medical setting.
+- **Freeze vs. fine-tune is a genuine choice, not a formality.** The frozen feature extractor gives the best overall balance (F1 ≈ 0.92), while fine-tuning maximises recall. Which to ship depends on whether the clinical goal is "miss nothing" or "balanced triage".
 - **Error analysis over raw numbers.** Inspecting the missed-pneumonia X-rays (rather than only reading metrics) is what turns a score into an understanding of where and why the model fails.
 
 ## How to run
@@ -63,7 +63,7 @@ Designed for Google Colab with a GPU runtime.
 
 1. Open `chest_xray_pneumonia.ipynb` in Colab and set **Runtime → Change runtime type → GPU**.
 2. Create a Kaggle API token (**Kaggle → Settings → API → Create New Token**) and upload the resulting `kaggle.json` into the Colab file browser.
-3. Run the cells top to bottom. The setup cells install the Kaggle client, download and unzip the dataset, and verify the folder structure before training begins.
+3. Run the cells top to bottom (**Runtime → Restart session and run all**). The setup cells install the Kaggle client, download and unzip the dataset, and verify the folder structure before training begins.
 
 ## Tech stack
 
